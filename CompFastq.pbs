@@ -1,0 +1,10 @@
+#!/bin/bash
+#PBS -l walltime=96:00:00
+#PBS -l nodes=1:ppn=1
+#PBS -j oe
+
+ORI_FASTQ_DIR=/scratch/speng/projects/Mouse_Xeno/fastqDir/PDX_Columbia/fastq/originalFastq/combinedFastq
+
+perl /scratch/speng/projects/bam2fastq/compFastq/compFastq_modified.pl ${OUTPUT_DIR}/${FILENAME}_Graft_unmapped_R1_001.fastq ${ORI_FASTQ_DIR}/${FILENAME}_final_R1_001.fastq
+
+perl /scratch/speng/projects/bam2fastq/compFastq/compFastq_modified.pl ${OUTPUT_DIR}/${FILENAME}_Graft_unmapped_R2_001.fastq ${ORI_FASTQ_DIR}/${FILENAME}_final_R2_001.fastq 

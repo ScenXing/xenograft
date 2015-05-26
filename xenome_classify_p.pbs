@@ -1,0 +1,12 @@
+#!/bin/bash
+#PBS -l walltime=96:00:00
+#PBS -l nodes=1:ppn=8
+#PBS -j oe
+ 
+idx=/scratch/speng/projects/Mouse_Xeno/index/idx
+ 
+echo "Start xGenome classification"
+
+perf stat /home/speng/bin/xenome-1.0.1-r/xenome classify -M 48 -T 8 -P ${idx} --tmp-dir /scratch/speng/tmp/xenograft --pairs --graft-name human --host-name mouse --output-filename-prefix ${OUTPUT} -i ${READ1} -i ${READ2}
+	
+echo "End xGenome classification"

@@ -1,0 +1,34 @@
+#!/bin/bash
+#PBS -l walltime=96:00:00
+#PBS -l nodes=1:ppn=8
+#PBS -j oe
+
+module load samtools/0.1.19
+module load perl
+
+DIR=/scratch/speng/projects/bam2fastq
+
+HumanOnlyfile=`find ${DIR} -name "${FILENAME}*GraftMapped_HostUnmapped*R1*.fastq.gz"`
+MouseOnlyfile=`find ${DIR} -name "${FILENAME}*GraftUnmapped_HostMapped*R1*.fastq"`
+Bothfile=`find ${DIR} -name "${FILENAME}*GraftMapped_HostMapped*R1*.fastq.gz"`
+HumanReads=`zcat $HumanOnlyfile|awk 'END {print NR/4}'`
+MouseReads=`cat $MouseOnlyfile|awk 'END {print NR/4}'`
+BothReads=`zcat $Bothfile|awk 'END {print NR/4}'`
+ExtractNumber=`printf "%.0f" $(echo "$HumanReads/($HumanReads+$MouseReads)*$BothReads"|bc -l)`
+
+cd ${OUTPUT_DIR}
+zcat $Bothfile|awk 'NR%4==1 {print $0}' > ${FILENAME}.temp1
+shuf -n $ExtractNumber ${FILENAME}.temp1 -o ${FILENAME}.temp2
+BothfileRead2=${Bothfile/_R1_001.fastq.gz/_R2_001.fastq.gz}
+HumanOnlyfileRead2=${HumanOnlyfile/_R1_001.fastq.gz/_R2_001.fastq.gz}
+
+perl /scratch/speng/projects/bam2fastq/compFastq/ExtractReadsFromRead2.pl ${OUTPUT_DIR}/${FILENAME}.temp2 ${Bothfile} ${BothfileRead2}
+
+gzip ${Bothfile}_Extracted.fastq
+gzip ${BothfileRead2}_Extracted.fastq
+cat ${HumanOnlyfile} ${Bothfile}_Extracted.fastq.gz > ${OUTPUT_DIR}/${FILENAME}_final_HB_R1_001.fastq.gz
+cat ${HumanOnlyfileRead2} ${BothfileRead2}_Extracted.fastq.gz > ${OUTPUT_DIR}/${FILENAME}_final_HB_R2_001.fastq.gz
+rm ${Bothfile}_Extracted.fastq.gz
+rm ${BothfileRead2}_Extracted.fastq.gz 
+rm ${OUTPUT_DIR}/${FILENAME}.temp1
+rm ${OUTPUT_DIR}/${FILENAME}.temp2

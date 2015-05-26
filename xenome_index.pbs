@@ -1,0 +1,14 @@
+#!/bin/bash
+#PBS -l walltime=96:00:00
+#PBS -l nodes=1:ppn=8
+#PBS -j oe
+ 
+mouseRef=/home/tgenref/pecan/refgenome/mm9_NCBI37/mm9_build37.fa
+humanRef=/home/tgenref/pecan/refgenome/hs37d5/hs37d5.fa
+idx=/scratch/speng/projects/Mouse_Xeno/index/idx
+ 
+echo "Start xGenome Index"
+
+perf stat /home/speng/bin/xenome-1.0.1-r/xenome index -M 24 -T 8 -P ${idx} --tmp-dir /scratch/speng/tmp/xenograft -H ${mouseRef} -G ${humanRef}
+	
+echo "End xGenome Index"
